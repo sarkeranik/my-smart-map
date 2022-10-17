@@ -15,7 +15,8 @@ import {
   LngLatBounds,
 } from 'maplibre-gl';
 import { Observable, of } from 'rxjs';
-import { MapService } from '../../services/map/map.service';
+import { MapService } from '../../../../core/services/map.service';
+import { SmartApartmentDataService } from '../../../../core/services/smart-apartment-data.service';
 
 @Component({
   selector: 'app-map',
@@ -28,17 +29,29 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('map')
   private mapContainer!: ElementRef<HTMLElement>;
   markerTitle: string = '';
-  geolocate!: GeolocateControl;
+  geoLocate!: GeolocateControl;
 
   countryInput: string = '';
 
-  countrySuggestions: { Name: String; Latitude: [number, number] }[] = [];
+  countrySuggestions: {
+    Name: String;
+    GeoCode: { Lng: number; Lat: number };
+  }[] = [];
   countrySuggestions$: Observable<
-    { Name: String; Latitude: [number, number] }[]
-  > = new Observable<{ Name: String; Latitude: [number, number] }[]>();
+    { Name: String; GeoCode: { Lng: number; Lat: number } }[]
+  > = new Observable<
+    { Name: String; GeoCode: { Lng: number; Lat: number } }[]
+  >();
   countryLoading: boolean = false;
 
-  constructor(private mapService: MapService) {}
+  Pins: { Name: String; GeoCode: { Lng: number; Lat: number } }[] = [];
+  Pins$: Observable<{ Name: String; GeoCode: { Lng: number; Lat: number } }[]> =
+    new Observable<{ Name: String; GeoCode: { Lng: number; Lat: number } }[]>();
+
+  constructor(
+    private mapService: MapService,
+    private smartApartmentDataService: SmartApartmentDataService
+  ) {}
 
   ngOnInit(): void {}
 
@@ -93,18 +106,30 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     //adding users location
-    this.geolocate = new GeolocateControl({
+    this.geoLocate = new GeolocateControl({
       positionOptions: {
         enableHighAccuracy: true,
       },
       trackUserLocation: true,
     });
     // Add the control to the map.
-    this.map.addControl(this.geolocate);
+    this.map.addControl(this.geoLocate);
   }
 
   onLoadAllPinsClick() {
     console.log('onLoadAllPinsClick');
+    this.smartApartmentDataService.GetAllPins().subscribe((resp) => {
+      for (const item of resp.records) {
+        this.Pins.push({
+          Name: item.name,
+          GeoCode: {
+            Lng: item.geocode.Longitude,
+            Lat: item.geocode.Latitude,
+          },
+        });
+      }
+      this.Pins$ = of(this.Pins);
+    });
   }
   onRemovedAllPinsClick() {
     console.log('onRemovedAllPinsClick');
@@ -127,8 +152,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   onMoveToYourLocationClick() {
     console.log('onMoveToYourLocationClick');
     //move to your location
-    if (this.geolocate) {
-      this.geolocate.trigger();
+    if (this.geoLocate) {
+      this.geoLocate.trigger();
     }
   }
   onSearchCountryInput(con: string | any) {
@@ -146,7 +171,10 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
         for (const place of resp.features) {
           this.countrySuggestions.push({
             Name: place.place_name,
-            Latitude: [place.center[0], place.center[1]],
+            GeoCode: {
+              Lng: place.center[0],
+              Lat: place.center[1],
+            },
           });
         }
         this.countrySuggestions$ = of(this.countrySuggestions);
@@ -156,12 +184,12 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   onSelectedCountry(con: any) {
     this.countryInput = con.Name;
     this.map.flyTo({
-      center: { lng: con.Latitude[0], lat: con.Latitude[1] },
+      center: { lng: con.GeoCode.Lng, lat: con.GeoCode.Lat },
       duration: 2000,
       zoom: 10,
     });
     var marker = new Marker({ color: '#FF0000', draggable: true })
-      .setLngLat({ lng: con.Latitude[0], lat: con.Latitude[1] })
+      .setLngLat({ lng: con.GeoCode.Lng, lat: con.GeoCode.Lat })
       .addTo(this.map);
     this.markers.push(marker);
   }

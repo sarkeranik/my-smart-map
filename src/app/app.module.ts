@@ -11,23 +11,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
-import { MapComponent } from './pages/map/map.component';
-import { ProfileComponent } from './pages/profile/profile.component';
-import { AboutComponent } from './pages/about/about.component';
-import { HelpComponent } from './pages/help/help.component';
-import { NotFoundComponent } from './pages/not-found/not-found.component';
+import { MapComponent } from './pages/shared/components/map/map.component';
+import { NotFoundPageComponent } from './pages/not-found/not-found.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { HomePageComponent } from './pages/home-page/home-page.component';
 @NgModule({
   declarations: [
     AppComponent,
     MapComponent,
-    ProfileComponent,
-    AboutComponent,
-    HelpComponent,
-    NotFoundComponent,
+    NotFoundPageComponent,
+    HomePageComponent,
   ],
   imports: [
     BrowserModule,
