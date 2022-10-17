@@ -7,7 +7,7 @@ mat-sidenav {
   margin: 16px;
   width: auto;
   border-right: none;
-  background: #002b5c;
+  background: #bdb7bd;
   color: white;
   border-radius: 10px;
   padding: 16px;
@@ -64,12 +64,11 @@ mat-divider {
   margin-bottom: 16px;
   background-color: rgba(255, 255, 255, 0.5);
 }
-.zoom-to {
+
+.form-fields {
+  width: 100%;
   color: white;
 }
-.zoom-to::placeholder {
-  color: white;
-}
-.zoom-to .zoom-to-label {
+.form-fields .form-fields-label {
   color: white;
 }

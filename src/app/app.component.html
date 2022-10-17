@@ -9,28 +9,50 @@
 <mat-sidenav-container>
   <mat-sidenav #sidenav="matSidenav" class="mat-elevation-z8">
 
-    <button mat-button class="menu-button" routerLink="/home">
-      <span>Load Pins</span>
+    <button mat-button class="menu-button" (click)="appHome.onLoadAllPinsClick()">
+      <span>Load All Pins</span>
     </button>
-    <button mat-button class="menu-button" routerLink="/profile">
-      <span>Replace Pin on Map dynamically</span>
+    <button mat-button class="menu-button" (click)="appHome.onRemovedAllPinsClick()">
+      <span>Remove all pins</span>
     </button>
-    <!-- <button mat-button class="menu-button" routerLink="/about">
-      <mat-label>Zoom To</mat-label>
-      <input matInput placeholder="Place Name" value="">
-    </button> -->
-    <mat-form-field class="zoom-to" appearance="fill">
-      <mat-label class="zoom-to-label">Zoom To</mat-label>
-      <input matInput placeholder="Place Name" value="">
+    <button mat-button class="menu-button" (click)="appHome.onAutoZoomToCenterAllPinsClick()">
+      <span>Auto Zoom to center map on a group of pins</span>
+    </button>
+    <button mat-button class="menu-button" (click)="appHome.onMoveToYourLocationClick()">
+      <span>Move to You Location</span>
+    </button>
+
+    <mat-form-field class="form-fields" appearance="fill">
+      <mat-label class="form-fields-label">Add a Marker with custom Title</mat-label>
+      <input matInput placeholder="Marker Title" value="" [(ngModel)]="appHome.markerTitle">
     </mat-form-field>
-    <button mat-button class="menu-button" routerLink="/profile">
-      <span>Auto Zoom to Show All Pin</span>
-    </button>
+    <!-- <mat-form-field class="form-fields" appearance="fill">
+      <mat-label class="form-fields-label">Zoom To</mat-label>
+      <input matInput placeholder="Place Name" value="">
+    </mat-form-field> -->
+    <mat-form-field class="example-full-width" appearance="fill">
+      <mat-label>Zoom To</mat-label>
+      <input type="text" placeholder="Location Name" aria-label="Zoom To" matInput [(ngModel)]="appHome.countryInput"
+        [matAutocomplete]="auto" (ngModelChange)="appHome.onSearchCountryInput(appHome.countryInput)">
+      <mat-autocomplete #auto="matAutocomplete">
+        <mat-option *ngIf="appHome.countryLoading" class="is-loading">
+          <mat-spinner diameter="50"></mat-spinner>
+        </mat-option>
+        <ng-container *ngIf="!appHome.countryLoading">
+          <mat-option *ngFor="let option of appHome.countrySuggestions$ | async" [value]="option"
+            (click)="appHome.onSelectedCountry(option)">
+            {{option.Name}}
+          </mat-option>
+        </ng-container>
+
+      </mat-autocomplete>
+    </mat-form-field>
   </mat-sidenav>
 
   <mat-sidenav-content>
     <div class="content mat-elevation-z8">
-      <router-outlet></router-outlet>
+      <!-- <router-outlet></router-outlet> -->
+      <app-home #appHome></app-home>
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>
