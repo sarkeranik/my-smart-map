@@ -18,6 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { HomePageComponent } from './pages/home-page/home-page.component';
+import { MatCardModule } from '@angular/material/card';
 @NgModule({
   declarations: [
     AppComponent,
@@ -41,6 +42,7 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
     MatAutocompleteModule,
     HttpClientModule,
     MatProgressSpinnerModule,
+    MatCardModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

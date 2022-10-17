@@ -44,9 +44,17 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   >();
   countryLoading: boolean = false;
 
-  Pins: { Name: String; GeoCode: { Lng: number; Lat: number } }[] = [];
-  Pins$: Observable<{ Name: String; GeoCode: { Lng: number; Lat: number } }[]> =
-    new Observable<{ Name: String; GeoCode: { Lng: number; Lat: number } }[]>();
+  Pins: {
+    Name: String;
+    Photo: String;
+    GeoCode: { Lng: number; Lat: number };
+  }[] = [];
+  Pins$: Observable<
+    { Name: String; Photo: String; GeoCode: { Lng: number; Lat: number } }[]
+  > = new Observable<
+    { Name: String; Photo: String; GeoCode: { Lng: number; Lat: number } }[]
+  >();
+  pinsLoading: boolean = false;
 
   constructor(
     private mapService: MapService,
@@ -118,23 +126,46 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onLoadAllPinsClick() {
     console.log('onLoadAllPinsClick');
+    this.pinsLoading = true;
     this.smartApartmentDataService.GetAllPins().subscribe((resp) => {
+      if (!resp || !resp.records) {
+        return;
+      }
+      var pinnedMarkers = [];
+
       for (const item of resp.records) {
         this.Pins.push({
           Name: item.name,
+          Photo: item.photo,
           GeoCode: {
             Lng: item.geocode.Longitude,
             Lat: item.geocode.Latitude,
           },
         });
+
+        var marker = new Marker({ color: '#FF0000' })
+          .setLngLat([item.geocode.Longitude, item.geocode.Latitude])
+          .addTo(this.map);
+        this.markers.push(marker);
+        this.addMarkerOnClickActions(marker);
+        pinnedMarkers.push(marker);
       }
       this.Pins$ = of(this.Pins);
+      this.pinsLoading = false;
+      //zoom out to see all pins
+      var bounds = new LngLatBounds();
+      pinnedMarkers.forEach(function (feature) {
+        bounds.extend(feature.getLngLat());
+      });
+
+      this.map.fitBounds(bounds, { maxZoom: 11 });
     });
   }
   onRemovedAllPinsClick() {
     console.log('onRemovedAllPinsClick');
     //removing all the marker
     this.markers.forEach((marker) => marker.remove());
+    this.Pins$ = of([]);
   }
   onAutoZoomToCenterAllPinsClick() {
     console.log('onAutoZoomToCenterAllPinsClick');
@@ -188,9 +219,11 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       duration: 2000,
       zoom: 10,
     });
-    var marker = new Marker({ color: '#FF0000', draggable: true })
+    var marker = new Marker({ color: '#FF0000' })
       .setLngLat({ lng: con.GeoCode.Lng, lat: con.GeoCode.Lat })
       .addTo(this.map);
+    this.addMarkerOnClickActions(marker);
+
     this.markers.push(marker);
   }
   addMarkerOnClickActions(marker: Marker) {
@@ -205,6 +238,14 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       });
       var popup = marker.getPopup();
       popup.fire(e);
+    });
+  }
+
+  onSelectedApartmentItem(item: any) {
+    this.map.flyTo({
+      center: { lng: item.GeoCode.Lng, lat: item.GeoCode.Lat },
+      duration: 2000,
+      zoom: 15,
     });
   }
 

@@ -8,10 +8,6 @@
 
 <mat-sidenav-container>
     <mat-sidenav #sidenav="matSidenav" class="mat-elevation-z8">
-
-        <button mat-button class="menu-button" (click)="appMap.onLoadAllPinsClick()">
-            <span>Load All Pins</span>
-        </button>
         <button mat-button class="menu-button" (click)="appMap.onRemovedAllPinsClick()">
             <span>Remove all pins</span>
         </button>
@@ -27,7 +23,7 @@
             <input matInput placeholder="Marker Title" value="" [(ngModel)]="appMap.markerTitle">
         </mat-form-field>
 
-        <mat-form-field class="example-full-width" appearance="fill">
+        <mat-form-field class="example-full-width" appearance="fill" style="width: 100%;">
             <mat-label>Zoom To</mat-label>
             <input type="text" placeholder="Location Name" aria-label="Zoom To" matInput
                 [(ngModel)]="appMap.countryInput" [matAutocomplete]="auto"
@@ -44,11 +40,29 @@
                 </ng-container>
             </mat-autocomplete>
         </mat-form-field>
+
+        <button mat-button class="menu-button" (click)="appMap.onLoadAllPinsClick()">
+            <span>Load All Pins</span>
+        </button>
+        <ng-container *ngIf="appMap.pinsLoading">
+            <mat-card style="cursor: pointer; margin: 10px;">
+                <mat-spinner diameter="50"></mat-spinner>
+            </mat-card>
+        </ng-container>
+        <ng-container *ngIf="!appMap.pinsLoading">
+            <mat-card *ngFor="let item of appMap.Pins$ | async" (click)="appMap.onSelectedApartmentItem(item)"
+                style="cursor: pointer; margin: 10px;">
+                <mat-card-title-group>
+                    <mat-card-title>{{item.Name}}</mat-card-title>
+                    <img mat-card-sm-image src="{{item.Photo}}">
+                </mat-card-title-group>
+            </mat-card>
+        </ng-container>
+
     </mat-sidenav>
 
     <mat-sidenav-content>
         <div class="content mat-elevation-z8">
-            <!-- <router-outlet></router-outlet> -->
             <app-map #appMap></app-map>
         </div>
     </mat-sidenav-content>
