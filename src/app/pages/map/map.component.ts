@@ -15,14 +15,14 @@ import {
   LngLatBounds,
 } from 'maplibre-gl';
 import { Observable, of } from 'rxjs';
-import { MapService } from '../../Services/map/map.service';
+import { MapService } from '../../services/map/map.service';
 
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss'],
+  selector: 'app-map',
+  templateUrl: './map.component.html',
+  styleUrls: ['./map.component.scss'],
 })
-export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
+export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   map!: Map;
   markers: Marker[] = [];
   @ViewChild('map')
@@ -31,7 +31,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   geolocate!: GeolocateControl;
 
   countryInput: string = '';
-  countryObject: { Name: String; Latitude: [] } | undefined;
 
   countrySuggestions: { Name: String; Latitude: [number, number] }[] = [];
   countrySuggestions$: Observable<
