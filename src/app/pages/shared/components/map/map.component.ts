@@ -46,7 +46,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   countrySuggestions$ = this.store.select(selectCountries);
   countryLoading: boolean = false;
 
-  Pins$ = this.store.select(selectPins);
+  pins$ = this.store.select(selectPins);
   pinsLoading: boolean = false;
 
   @ViewChild('map') private mapContainer!: ElementRef<HTMLElement>;
@@ -128,7 +128,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.pinsLoading = true;
 
     this.store.dispatch(loadAllPinsOnLoadAllPinsButtonClicked());
-    this.Pins$.subscribe((pins) => {
+    this.pins$.subscribe((pins) => {
       var pinnedMarkers: Marker[] = [];
 
       if (pins && pins.length > 0) {
