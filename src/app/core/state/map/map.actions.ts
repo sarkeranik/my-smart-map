@@ -5,6 +5,20 @@ import { Marker } from 'maplibre-gl';
 
 export const appLoaded = createAction('[App] App Loaded');
 
+//#region Pins
+export const loadAllPinsOnLoadAllPinsButtonClicked = createAction(
+  '[Home Page] Load All Pins On Load All Pins Button Clicked'
+);
+export const loadAllPinsOnLoadAllPinsButtonClickedSuccess = createAction(
+  '[Home Page] Load All Pins On Load All Pins Button Clicked Success',
+  props<{ pins: Pin[] }>()
+);
+export const loadAllPinsOnLoadAllPinsButtonClickedFailed = createAction(
+  '[Menu API] Load All Pins On Load All Pins Button Clicked Failed',
+  props<{ error: any }>()
+);
+//#endregion
+
 //#region Country
 export const fetchCountriesInitiate = createAction(
   '[Home Page] On Search Country Input Initiated',
@@ -24,20 +38,6 @@ export const removeAllCountriesOnNewCountryInput = createAction(
   '[Home Page] Remove All Countries On New Country Input'
 );
 
-//#endregion
-
-//#region Pins
-export const loadAllPinsOnLoadAllPinsButtonClicked = createAction(
-  '[Home Page] Load All Pins On Load All Pins Button Clicked'
-);
-export const loadAllPinsOnLoadAllPinsButtonClickedSuccess = createAction(
-  '[Home Page] Load All Pins On Load All Pins Button Clicked Success',
-  props<{ pins: Pin[] }>()
-);
-export const loadAllPinsOnLoadAllPinsButtonClickedFailed = createAction(
-  '[Menu API] Load All Pins On Load All Pins Button Clicked Failed',
-  props<{ error: any }>()
-);
 //#endregion
 
 //#region Markers

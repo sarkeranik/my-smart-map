@@ -51,8 +51,9 @@ import { reducer } from './core/state/map';
     HttpClientModule,
     MatProgressSpinnerModule,
     MatCardModule,
-    StoreModule.forRoot(reducer),
-    EffectsModule.forRoot([MapsEffects]),
+    StoreModule.forRoot({}),
+    StoreModule.forFeature('maps', reducer),
+    EffectsModule.forRoot(),
     EffectsModule.forFeature([MapsEffects]),
     StoreDevtoolsModule.instrument({
       maxAge: 25, // Retains last 25 states
