@@ -24,7 +24,9 @@ import {
   fetchCountriesInitiate,
   removeAllCountriesOnNewCountryInput,
   selectCountries,
+  selectCountriesLoading,
   selectPins,
+  selectPinLoading,
   removeAllPinsInitiate,
   MapState,
 } from '../../../../core/state/map';
@@ -50,17 +52,19 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   >();
 
   // countrySuggestions$ = this.store.select(selectCountries);
-  countryLoading: boolean = false;
+  countryLoading$: Observable<boolean> = new Observable<boolean>();
 
   public pins$: Observable<Pin[]> = new Observable<Pin[]>();
 
   // pins$ = this.store.select(selectPins);
-  pinsLoading: boolean = false;
+  pinsLoading$: Observable<boolean> = new Observable<boolean>();
 
   @ViewChild('map') private mapContainer!: ElementRef<HTMLElement>;
   constructor(private store: Store<MapState>) {
     this.countrySuggestions$ = this.store.select(selectCountries);
+    this.countryLoading$ = this.store.select(selectCountriesLoading);
     this.pins$ = this.store.select(selectPins);
+    this.pinsLoading$ = this.store.select(selectPinLoading);
   }
 
   ngOnInit(): void {
@@ -132,7 +136,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onLoadAllPinsClick() {
     console.log('onLoadAllPinsClick');
-    this.pinsLoading = true;
 
     this.store.dispatch(loadAllPinsOnLoadAllPinsButtonClicked());
     this.pins$.subscribe((pins) => {
@@ -140,16 +143,15 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       if (pins && pins.length > 0) {
         pins.forEach((pin) => {
           var marker = new Marker({ color: '#FF0000' })
-            .setLngLat({ lon: pin.GeoCode.Lng, lat: pin.GeoCode.Lat })
+            .setLngLat({ lon: pin.GeoCode.Lon, lat: pin.GeoCode.Lat })
             .addTo(this.map);
           this.addMarkerOnClickActions(marker);
-          // this.store.dispatch(addMarkerInitiated({ marker: marker }));
           this.markers.push(marker);
 
           pinnedMarkers.push(marker);
         });
       }
-      this.pinsLoading = false;
+
       //zoom out to see all pins
       if (pinnedMarkers.length > 0) {
         var bounds = new LngLatBounds();
@@ -191,35 +193,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   onSearchCountryInput(name: String | object) {
     if (!name) {
       this.store.dispatch(removeAllCountriesOnNewCountryInput());
-
-      // this.countryLoading = false;
-      // this.countrySuggestions = [];
-      // this.countrySuggestions$ = of(this.countrySuggestions);
       return;
     }
-    this.countryLoading = true;
-
     this.store.dispatch(fetchCountriesInitiate({ loc: name }));
-
-    this.countryLoading = false;
-
-    // this.countryLoading = true;
-    // this.countrySuggestions = [];
-    // this.mapService
-    //   .SearchCountryByName(typeof con === 'string' ? con : con.Name)
-    //   .subscribe((resp) => {
-    //     for (const place of resp.features) {
-    //       this.countrySuggestions.push({
-    //         Name: place.place_name,
-    //         GeoCode: {
-    //           Lng: place.center[0],
-    //           Lat: place.center[1],
-    //         },
-    //       });
-    //     }
-    //     this.countrySuggestions$ = of(this.countrySuggestions);
-    //     this.countryLoading = false;
-    //   });
   }
   onSelectedCountry(con: any) {
     this.countryInput = con.Name;
@@ -253,7 +229,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onSelectedApartmentItem(item: any) {
     this.map.flyTo({
-      center: { lng: item.GeoCode.Lng, lat: item.GeoCode.Lat },
+      center: { lng: item.GeoCode.Lon, lat: item.GeoCode.Lat },
       duration: 2000,
       zoom: 15,
     });

@@ -7,11 +7,15 @@ export const selectCountries = createSelector(
   selectMaps,
   (state: MapState) => state.countries
 );
+export const selectCountriesLoading = createSelector(
+  selectMaps,
+  (state: MapState) => state.countriesLoading
+);
 export const selectPins = createSelector(
   selectMaps,
   (state: MapState) => state.pins
 );
-export const selectMarkers = createSelector(
+export const selectPinLoading = createSelector(
   selectMaps,
-  (state: MapState) => state.markers
+  (state: MapState) => state.pinLoading
 );

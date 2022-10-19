@@ -48,7 +48,7 @@ export class MapsEffects {
                 Name: item.name,
                 PhotoUrl: item.photo,
                 GeoCode: {
-                  Lng: item.geocode.Longitude,
+                  Lon: item.geocode.Longitude,
                   Lat: item.geocode.Latitude,
                 },
               });
@@ -56,38 +56,19 @@ export class MapsEffects {
             return MapActions.loadAllPinsOnLoadAllPinsButtonClickedSuccess({
               pins: pins,
             });
-          })
+          }),
+          catchError((error) =>
+            of(
+              MapActions.loadAllPinsOnLoadAllPinsButtonClickedFailed({
+                error: error,
+              })
+            )
+          )
         );
         return res;
       })
     )
   );
-
-  // loadAllPinsOnLoadAllPinsButtonClicked$ = createEffect(() =>
-  //   this.actions$.pipe(
-  //     ofType(MapActions.loadAllPinsOnLoadAllPinsButtonClicked),
-  //     exhaustMap(() =>
-  //       this.smartApartmentDataService
-  //         .GetAllPins()
-  //         .pipe(takeUntil(this.destroy$))
-  //         .pipe(
-  //           map((pins) =>
-  //             MapActions.loadAllPinsOnLoadAllPinsButtonClickedSuccess({
-  //               pins: pins,
-  //             })
-  //           ),
-  //           catchError((error) =>
-  //             of(
-  //               MapActions.loadAllPinsOnLoadAllPinsButtonClickedFailed({
-  //                 error: error,
-  //               })
-  //             )
-  //           )
-  //         )
-  //     )
-  //   )
-  // );
-
   fetchCountriesOnLocInput$ = createEffect(() =>
     this.actions$.pipe(
       // you can pass in multiple actions here that will trigger the same effect
@@ -102,7 +83,7 @@ export class MapsEffects {
               countries.push({
                 Name: place.place_name,
                 GeoCode: {
-                  Lng: place.center[0],
+                  Lon: place.center[0],
                   Lat: place.center[1],
                 },
               });
@@ -116,6 +97,7 @@ export class MapsEffects {
       )
     )
   );
+  //for debugging the ngrx states
   init$ = createEffect(
     () => this.actions$.pipe(tap((action) => console.log(action))),
     { dispatch: false }

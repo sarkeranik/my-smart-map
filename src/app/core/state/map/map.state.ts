@@ -4,12 +4,14 @@ import { Marker } from 'maplibre-gl';
 
 export interface MapState {
   countries: Country[];
+  countriesLoading: boolean;
   pins: Pin[];
-  markers: Marker[];
+  pinLoading: boolean;
 }
 
 export const initialState: MapState = {
   countries: [],
+  countriesLoading: false,
   pins: [],
-  markers: [],
+  pinLoading: false,
 };

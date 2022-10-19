@@ -29,10 +29,10 @@
                 [(ngModel)]="appMap.countryInput" [matAutocomplete]="auto"
                 (ngModelChange)="appMap.onSearchCountryInput(appMap.countryInput)">
             <mat-autocomplete #auto="matAutocomplete">
-                <mat-option *ngIf="appMap.countryLoading" class="is-loading">
+                <mat-option *ngIf="appMap.countryLoading$ | async" class="is-loading">
                     <mat-spinner diameter="50"></mat-spinner>
                 </mat-option>
-                <ng-container *ngIf="!appMap.countryLoading">
+                <ng-container *ngIf="!(appMap.countryLoading$ | async)">
                     <mat-option *ngFor="let option of (appMap.countrySuggestions$ | async)" [value]="option"
                         (click)="appMap.onSelectedCountry(option)">
                         {{option.Name}}
@@ -44,12 +44,12 @@
         <button mat-button class="menu-button" (click)="appMap.onLoadAllPinsClick()">
             <span>Load All Pins</span>
         </button>
-        <ng-container *ngIf="appMap.pinsLoading">
+        <ng-container *ngIf="appMap.pinsLoading$ | async">
             <mat-card style="cursor: pointer; margin: 10px;">
                 <mat-spinner diameter="50"></mat-spinner>
             </mat-card>
         </ng-container>
-        <ng-container *ngIf="!appMap.pinsLoading">
+        <ng-container *ngIf="!(appMap.pinsLoading$ | async)">
             <mat-card *ngFor="let item of appMap.pins$ | async" (click)="appMap.onSelectedApartmentItem(item)"
                 style="cursor: pointer; margin: 10px;">
                 <mat-card-title-group>
