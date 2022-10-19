@@ -9,26 +9,13 @@ import { Country } from '../models/country.model';
 export class MapService {
   constructor(private http: HttpClient) {}
 
-  SearchCountryByName(name: string | any): Observable<Country[]> {
+  SearchCountryByName(name: string | any): Observable<any> {
+    console.log('SearchCountryByName', name);
     var response = this.http.get<any>(
       `https://api.maptiler.com/geocoding/${
         typeof name === 'string' ? name : name.Name
       }.json?key=CH1cYDfxBV9ZBu1lHGqh`
     );
-
-    var countries: Country[] = [];
-    response.subscribe((resp) => {
-      for (const place of resp.features) {
-        countries.push({
-          Name: place.place_name,
-          GeoCode: {
-            Lng: place.center[0],
-            Lat: place.center[1],
-          },
-        });
-      }
-      return of(countries);
-    });
-    return of([]);
+    return response;
   }
 }

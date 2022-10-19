@@ -1,4 +1,4 @@
-import { createAction, props } from '@ngrx/store';
+import { createAction, props, Action } from '@ngrx/store';
 import { Country } from '../../models/country.model';
 import { Pin } from '../../models/pin.model';
 import { Marker } from 'maplibre-gl';
@@ -14,15 +14,18 @@ export const loadAllPinsOnLoadAllPinsButtonClickedSuccess = createAction(
   props<{ pins: Pin[] }>()
 );
 export const loadAllPinsOnLoadAllPinsButtonClickedFailed = createAction(
-  '[Menu API] Load All Pins On Load All Pins Button Clicked Failed',
+  '[Home Page] Load All Pins On Load All Pins Button Clicked Failed',
   props<{ error: any }>()
+);
+export const removeAllPinsInitiate = createAction(
+  '[Home Page] Remove All Pins Initiate'
 );
 //#endregion
 
 //#region Country
 export const fetchCountriesInitiate = createAction(
   '[Home Page] On Search Country Input Initiated',
-  props<{ loc: String | any }>()
+  props<{ loc: String | object }>()
 );
 
 export const fetchCountriesSuccess = createAction(
@@ -30,7 +33,7 @@ export const fetchCountriesSuccess = createAction(
   props<{ countries: Country[] }>()
 );
 export const fetchCountriesFailed = createAction(
-  '[Menu API] Fetch Countries Failed',
+  '[Home Page] Fetch Countries Failed',
   props<{ error: any }>()
 );
 
@@ -38,15 +41,4 @@ export const removeAllCountriesOnNewCountryInput = createAction(
   '[Home Page] Remove All Countries On New Country Input'
 );
 
-//#endregion
-
-//#region Markers
-export const addMarkerInitiated = createAction(
-  '[Home Page] Add Marker Initiated',
-  props<{ marker: Marker }>()
-);
-
-export const removeAllMarkerInitiated = createAction(
-  '[Home Page] Remove All Marker Initiated'
-);
 //#endregion

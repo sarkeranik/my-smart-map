@@ -14,7 +14,7 @@ import {
   Popup,
   LngLatBounds,
 } from 'maplibre-gl';
-import { Observable, of } from 'rxjs';
+import { Observable, of, takeUntil, Subject, map } from 'rxjs';
 import { MapService } from '../../../../core/services/map.service';
 import { SmartApartmentDataService } from '../../../../core/services/smart-apartment-data.service';
 import { Store } from '@ngrx/store';
@@ -23,13 +23,13 @@ import {
   loadAllPinsOnLoadAllPinsButtonClicked,
   fetchCountriesInitiate,
   removeAllCountriesOnNewCountryInput,
-  addMarkerInitiated,
   selectCountries,
   selectPins,
-  selectMarkers,
-  removeAllMarkerInitiated,
+  removeAllPinsInitiate,
+  MapState,
 } from '../../../../core/state/map';
 import { Pin } from 'src/app/core/models/pin.model';
+import { Country } from 'src/app/core/models/country.model';
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -37,25 +37,34 @@ import { Pin } from 'src/app/core/models/pin.model';
 })
 export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   map!: Map;
-  markers = this.store.select(selectMarkers);
+  markers: Marker[] = [];
   markerTitle: string = '';
   geoLocate!: GeolocateControl;
 
   countryInput: string = '';
 
-  countrySuggestions$ = this.store.select(selectCountries);
+  destroy$: Subject<boolean> = new Subject<boolean>();
+
+  public countrySuggestions$: Observable<Country[]> = new Observable<
+    Country[]
+  >();
+
+  // countrySuggestions$ = this.store.select(selectCountries);
   countryLoading: boolean = false;
 
-  pins$ = this.store.select(selectPins);
+  public pins$: Observable<Pin[]> = new Observable<Pin[]>();
+
+  // pins$ = this.store.select(selectPins);
   pinsLoading: boolean = false;
 
   @ViewChild('map') private mapContainer!: ElementRef<HTMLElement>;
-  constructor(private store: Store) {}
+  constructor(private store: Store<MapState>) {
+    this.countrySuggestions$ = this.store.select(selectCountries);
+    this.pins$ = this.store.select(selectPins);
+  }
 
   ngOnInit(): void {
     this.store.dispatch(appLoaded());
-    console.log('countrySuggestions', this.countrySuggestions$);
-    console.log('store', this.store);
   }
 
   ngAfterViewInit() {
@@ -77,50 +86,48 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       'top-right'
     );
 
-    // //adding a new marker to the map
-    // var marker = new Marker({ color: '#FF0000', draggable: true })
-    //   .setLngLat([initialState.lng, initialState.lat])
-    //   .addTo(this.map);
+    //adding a new marker to the map
+    var marker = new Marker({ color: '#FF0000', draggable: true })
+      .setLngLat([initialState.lng, initialState.lat])
+      .addTo(this.map);
 
-    // this.addMarkerOnClickActions(marker);
+    this.addMarkerOnClickActions(marker);
 
-    // this.store.dispatch(addMarkerInitiated({ marker: marker }));
-    // // this.markers.push(marker);
+    this.markers.push(marker);
 
-    // //adding a new marker to the map on double click
-    // this.map.on('dblclick', (e) => {
-    //   this.map.flyTo({
-    //     center: e.lngLat,
-    //     duration: 2000,
-    //     zoom: 15,
-    //   });
-    //   var marker = new Marker({ color: '#FF0000', draggable: true })
-    //     .setLngLat(e.lngLat)
-    //     .addTo(this.map);
+    // adding a new marker to the map on double click
+    this.map.on('dblclick', (e) => {
+      this.map.flyTo({
+        center: e.lngLat,
+        duration: 2000,
+        zoom: 15,
+      });
+      var marker = new Marker({ color: '#FF0000', draggable: true })
+        .setLngLat(e.lngLat)
+        .addTo(this.map);
 
-    //   if (this.markerTitle) {
-    //     marker.setPopup(new Popup().setHTML(`<h1>${this.markerTitle}</h1>`));
-    //   }
+      if (this.markerTitle) {
+        marker.setPopup(new Popup().setHTML(`<h1>${this.markerTitle}</h1>`));
+      }
 
-    //   this.addMarkerOnClickActions(marker);
+      this.addMarkerOnClickActions(marker);
 
-    //   marker.getElement().addEventListener('oncontextmenu', (e) => {
-    //     marker.remove();
-    //   });
+      marker.getElement().addEventListener('oncontextmenu', (e) => {
+        marker.remove();
+      });
 
-    //   this.store.dispatch(addMarkerInitiated({ marker: marker }));
-    //   // this.markers.push(marker);
-    // });
+      this.markers.push(marker);
+    });
 
-    // //adding users location
-    // this.geoLocate = new GeolocateControl({
-    //   positionOptions: {
-    //     enableHighAccuracy: true,
-    //   },
-    //   trackUserLocation: true,
-    // });
-    // // Add the control to the map.
-    // this.map.addControl(this.geoLocate);
+    //adding users location
+    this.geoLocate = new GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true,
+      },
+      trackUserLocation: true,
+    });
+    // Add the control to the map.
+    this.map.addControl(this.geoLocate);
   }
 
   onLoadAllPinsClick() {
@@ -130,19 +137,20 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.store.dispatch(loadAllPinsOnLoadAllPinsButtonClicked());
     this.pins$.subscribe((pins) => {
       var pinnedMarkers: Marker[] = [];
-
       if (pins && pins.length > 0) {
         pins.forEach((pin) => {
           var marker = new Marker({ color: '#FF0000' })
-            .setLngLat([pin.GeoCode.Lng, pin.GeoCode.Lng])
+            .setLngLat({ lon: pin.GeoCode.Lng, lat: pin.GeoCode.Lat })
             .addTo(this.map);
           this.addMarkerOnClickActions(marker);
-          this.store.dispatch(addMarkerInitiated({ marker: marker }));
+          // this.store.dispatch(addMarkerInitiated({ marker: marker }));
+          this.markers.push(marker);
+
           pinnedMarkers.push(marker);
         });
       }
       this.pinsLoading = false;
-      console.log('pinnedMarkers', pinnedMarkers);
+      //zoom out to see all pins
       if (pinnedMarkers.length > 0) {
         var bounds = new LngLatBounds();
         pinnedMarkers.forEach(function (marker) {
@@ -151,65 +159,27 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
         this.map.fitBounds(bounds, { maxZoom: 11 });
       }
     });
-
-    // this.smartApartmentDataService.GetAllPins().subscribe((resp) => {
-    //   if (!resp || !resp.records) {
-    //     return;
-    //   }
-    //   var pinnedMarkers = [];
-
-    //   for (const item of resp.records) {
-    //     this.Pins.push({
-    //       Name: item.name,
-    //       Photo: item.photo,
-    //       GeoCode: {
-    //         Lng: item.geocode.Longitude,
-    //         Lat: item.geocode.Latitude,
-    //       },
-    //     });
-
-    //     var marker = new Marker({ color: '#FF0000' })
-    //       .setLngLat([item.geocode.Longitude, item.geocode.Latitude])
-    //       .addTo(this.map);
-    //     this.store.dispatch(addMarkerInitiated({ marker: marker }));
-    //     //   this.markers.push(marker);
-    //     this.addMarkerOnClickActions(marker);
-    //     pinnedMarkers.push(marker);
-    //   }
-    //   this.Pins$ = of(this.Pins);
-    //   this.pinsLoading = false;
-    //   //zoom out to see all pins
-    //   var bounds = new LngLatBounds();
-    //   pinnedMarkers.forEach(function (feature) {
-    //     bounds.extend(feature.getLngLat());
-    //   });
-
-    //   this.map.fitBounds(bounds, { maxZoom: 11 });
-    // });
   }
   onRemovedAllPinsClick() {
     console.log('onRemovedAllPinsClick');
 
-    this.store.dispatch(removeAllMarkerInitiated());
     //removing all the marker
-    // this.markers.forEach((marker) => marker.remove());
-    // this.Pins$ = of([]);
+    this.markers.forEach((marker) => marker.remove());
+    this.store.dispatch(removeAllPinsInitiate());
   }
   onAutoZoomToCenterAllPinsClick() {
     console.log('onAutoZoomToCenterAllPinsClick');
 
-    this.markers.subscribe((markers) => {
-      if (markers.length > 1) {
-        var bounds = new LngLatBounds();
-        markers.forEach(function (marker) {
-          bounds.extend(marker.getLngLat());
-        });
+    if (this.markers.length > 1) {
+      var bounds = new LngLatBounds();
+      this.markers.forEach(function (marker) {
+        bounds.extend(marker.getLngLat());
+      });
 
-        this.map.fitBounds(bounds, { maxZoom: 11 });
-      } else {
-        alert('Please add at least 2 markers');
-      }
-    });
+      this.map.fitBounds(bounds, { maxZoom: 11 });
+    } else {
+      alert('Please add at least 2 markers');
+    }
   }
   onMoveToYourLocationClick() {
     console.log('onMoveToYourLocationClick');
@@ -218,8 +188,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       this.geoLocate.trigger();
     }
   }
-  onSearchCountryInput(con: String | any) {
-    if (!con) {
+  onSearchCountryInput(name: String | object) {
+    if (!name) {
       this.store.dispatch(removeAllCountriesOnNewCountryInput());
 
       // this.countryLoading = false;
@@ -229,7 +199,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.countryLoading = true;
 
-    this.store.dispatch(fetchCountriesInitiate(con));
+    this.store.dispatch(fetchCountriesInitiate({ loc: name }));
 
     this.countryLoading = false;
 
@@ -264,8 +234,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       .addTo(this.map);
     this.addMarkerOnClickActions(marker);
 
-    this.store.dispatch(addMarkerInitiated({ marker: marker }));
-    // this.markers.push(marker);
+    this.markers.push(marker);
   }
   addMarkerOnClickActions(marker: Marker) {
     if (!marker) {
@@ -291,6 +260,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.destroy$.next(true);
     this.map?.remove();
   }
 }
