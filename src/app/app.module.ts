@@ -51,7 +51,7 @@ import { reducer } from './core/state/map';
     HttpClientModule,
     MatProgressSpinnerModule,
     MatCardModule,
-    StoreModule.forRoot({}),
+    StoreModule.forRoot(reducer, {}),
     StoreModule.forFeature('maps', reducer),
     EffectsModule.forRoot(),
     EffectsModule.forFeature([MapsEffects]),
