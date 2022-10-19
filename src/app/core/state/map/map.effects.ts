@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { of, tap, takeUntil, Subject, EMPTY } from 'rxjs';
+import { of, tap, Subject } from 'rxjs';
 import {
   switchMap,
   map,
@@ -30,7 +30,7 @@ export class MapsEffects {
   loadAllPinsOnLoadAllPinsButtonClicked$ = createEffect(() =>
     this.actions$.pipe(
       // you can pass in multiple actions here that will trigger the same effect
-      ofType(MapActions.loadAllPinsOnLoadAllPinsButtonClicked),
+      ofType(MapActions.loadAllPinsInitiate),
       switchMap(() => {
         console.log('effect called');
         var res = this.smartApartmentDataService.GetAllPins().pipe(
@@ -38,7 +38,7 @@ export class MapsEffects {
             var pins: Pin[] = [];
             pins = cloneDeep([]);
             if (!resp || !resp.records) {
-              return MapActions.loadAllPinsOnLoadAllPinsButtonClickedSuccess({
+              return MapActions.loadAllPinsSuccess({
                 pins: pins,
               });
             }
@@ -48,18 +48,18 @@ export class MapsEffects {
                 Name: item.name,
                 PhotoUrl: item.photo,
                 GeoCode: {
-                  Lon: item.geocode.Longitude,
+                  Lng: item.geocode.Longitude,
                   Lat: item.geocode.Latitude,
                 },
               });
             }
-            return MapActions.loadAllPinsOnLoadAllPinsButtonClickedSuccess({
+            return MapActions.loadAllPinsSuccess({
               pins: pins,
             });
           }),
           catchError((error) =>
             of(
-              MapActions.loadAllPinsOnLoadAllPinsButtonClickedFailed({
+              MapActions.loadAllPinsFailed({
                 error: error,
               })
             )
@@ -83,7 +83,7 @@ export class MapsEffects {
               countries.push({
                 Name: place.place_name,
                 GeoCode: {
-                  Lon: place.center[0],
+                  Lng: place.center[0],
                   Lat: place.center[1],
                 },
               });

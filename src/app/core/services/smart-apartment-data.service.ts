@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { Pin } from '../models/pin.model';
-import { cloneDeep } from 'lodash';
 @Injectable({
   providedIn: 'root',
 })

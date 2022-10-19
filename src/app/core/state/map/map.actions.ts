@@ -6,15 +6,13 @@ import { Marker } from 'maplibre-gl';
 export const appLoaded = createAction('[App] App Loaded');
 
 //#region Pins
-export const loadAllPinsOnLoadAllPinsButtonClicked = createAction(
-  '[Home Page] Load All Pins On Load All Pins Button Clicked'
-);
-export const loadAllPinsOnLoadAllPinsButtonClickedSuccess = createAction(
-  '[Home Page] Load All Pins On Load All Pins Button Clicked Success',
+export const loadAllPinsInitiate = createAction('[Home Page] Load All Pins ');
+export const loadAllPinsSuccess = createAction(
+  '[Home Page] Load All Pins Success',
   props<{ pins: Pin[] }>()
 );
-export const loadAllPinsOnLoadAllPinsButtonClickedFailed = createAction(
-  '[Home Page] Load All Pins On Load All Pins Button Clicked Failed',
+export const loadAllPinsFailed = createAction(
+  '[Home Page] Load All Pins Failed',
   props<{ error: any }>()
 );
 export const removeAllPinsInitiate = createAction(
@@ -24,7 +22,7 @@ export const removeAllPinsInitiate = createAction(
 
 //#region Country
 export const fetchCountriesInitiate = createAction(
-  '[Home Page] On Search Country Input Initiated',
+  '[Home Page] Fetch Countries Initiated',
   props<{ loc: String | object }>()
 );
 
@@ -37,8 +35,7 @@ export const fetchCountriesFailed = createAction(
   props<{ error: any }>()
 );
 
-export const removeAllCountriesOnNewCountryInput = createAction(
-  '[Home Page] Remove All Countries On New Country Input'
+export const removeAllCountriesInitiate = createAction(
+  '[Home Page] Remove All Countries Initiate'
 );
-
 //#endregion

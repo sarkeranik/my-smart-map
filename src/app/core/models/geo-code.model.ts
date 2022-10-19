@@ -1,4 +1,4 @@
 export class GeoCode {
-  Lon: any;
+  Lng: any;
   Lat: any;
 }

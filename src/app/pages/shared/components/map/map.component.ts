@@ -20,9 +20,9 @@ import { SmartApartmentDataService } from '../../../../core/services/smart-apart
 import { Store } from '@ngrx/store';
 import {
   appLoaded,
-  loadAllPinsOnLoadAllPinsButtonClicked,
+  loadAllPinsInitiate,
   fetchCountriesInitiate,
-  removeAllCountriesOnNewCountryInput,
+  removeAllCountriesInitiate,
   selectCountries,
   selectCountriesLoading,
   selectPins,
@@ -43,7 +43,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   markerTitle: string = '';
   geoLocate!: GeolocateControl;
 
-  countryInput: string = '';
+  countryInput: String = '';
 
   destroy$: Subject<boolean> = new Subject<boolean>();
 
@@ -137,13 +137,14 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   onLoadAllPinsClick() {
     console.log('onLoadAllPinsClick');
 
-    this.store.dispatch(loadAllPinsOnLoadAllPinsButtonClicked());
+    this.store.dispatch(loadAllPinsInitiate());
     this.pins$.subscribe((pins) => {
       var pinnedMarkers: Marker[] = [];
       if (pins && pins.length > 0) {
         pins.forEach((pin) => {
+          //adding marker to all the pins
           var marker = new Marker({ color: '#FF0000' })
-            .setLngLat({ lon: pin.GeoCode.Lon, lat: pin.GeoCode.Lat })
+            .setLngLat({ lon: pin.GeoCode.Lng, lat: pin.GeoCode.Lat })
             .addTo(this.map);
           this.addMarkerOnClickActions(marker);
           this.markers.push(marker);
@@ -162,15 +163,16 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
   }
-  onRemovedAllPinsClick() {
-    console.log('onRemovedAllPinsClick');
+  onRemoveAllMarkersClick() {
+    console.log('onRemoveAllMarkersClick');
 
     //removing all the marker
     this.markers.forEach((marker) => marker.remove());
+    this.markers = [];
     this.store.dispatch(removeAllPinsInitiate());
   }
-  onAutoZoomToCenterAllPinsClick() {
-    console.log('onAutoZoomToCenterAllPinsClick');
+  onAutoZoomToCenterAllMarkersClick() {
+    console.log('onAutoZoomToCenterAllMarkersClick');
 
     if (this.markers.length > 1) {
       var bounds = new LngLatBounds();
@@ -192,12 +194,14 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   onSearchCountryInput(name: String | object) {
     if (!name) {
-      this.store.dispatch(removeAllCountriesOnNewCountryInput());
+      this.store.dispatch(removeAllCountriesInitiate());
       return;
     }
     this.store.dispatch(fetchCountriesInitiate({ loc: name }));
   }
-  onSelectedCountry(con: any) {
+  onSelectedCountry(con: Country) {
+    console.log('onSelectedCountry');
+
     this.countryInput = con.Name;
     this.map.flyTo({
       center: { lng: con.GeoCode.Lng, lat: con.GeoCode.Lat },
@@ -227,9 +231,11 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  onSelectedApartmentItem(item: any) {
+  onSelectedApartmentItem(item: Pin) {
+    console.log('onSelectedApartmentItem');
+
     this.map.flyTo({
-      center: { lng: item.GeoCode.Lon, lat: item.GeoCode.Lat },
+      center: { lng: item.GeoCode.Lng, lat: item.GeoCode.Lat },
       duration: 2000,
       zoom: 15,
     });
