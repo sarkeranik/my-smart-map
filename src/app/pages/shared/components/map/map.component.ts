@@ -17,7 +17,19 @@ import {
 import { Observable, of } from 'rxjs';
 import { MapService } from '../../../../core/services/map.service';
 import { SmartApartmentDataService } from '../../../../core/services/smart-apartment-data.service';
-
+import { Store } from '@ngrx/store';
+import {
+  appLoaded,
+  loadAllPinsOnLoadAllPinsButtonClicked,
+  fetchCountriesInitiate,
+  removeAllCountriesOnNewCountryInput,
+  addMarkerInitiated,
+  selectCountries,
+  selectPins,
+  selectMarkers,
+  removeAllMarkerInitiated,
+} from '../../../../core/state/map';
+import { Pin } from 'src/app/core/models/pin.model';
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -25,43 +37,26 @@ import { SmartApartmentDataService } from '../../../../core/services/smart-apart
 })
 export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   map!: Map;
-  markers: Marker[] = [];
-  @ViewChild('map')
-  private mapContainer!: ElementRef<HTMLElement>;
+  markers = this.store.select(selectMarkers);
   markerTitle: string = '';
   geoLocate!: GeolocateControl;
 
   countryInput: string = '';
 
-  countrySuggestions: {
-    Name: String;
-    GeoCode: { Lng: number; Lat: number };
-  }[] = [];
-  countrySuggestions$: Observable<
-    { Name: String; GeoCode: { Lng: number; Lat: number } }[]
-  > = new Observable<
-    { Name: String; GeoCode: { Lng: number; Lat: number } }[]
-  >();
+  countrySuggestions$ = this.store.select(selectCountries);
   countryLoading: boolean = false;
 
-  Pins: {
-    Name: String;
-    Photo: String;
-    GeoCode: { Lng: number; Lat: number };
-  }[] = [];
-  Pins$: Observable<
-    { Name: String; Photo: String; GeoCode: { Lng: number; Lat: number } }[]
-  > = new Observable<
-    { Name: String; Photo: String; GeoCode: { Lng: number; Lat: number } }[]
-  >();
+  Pins$ = this.store.select(selectPins);
   pinsLoading: boolean = false;
 
-  constructor(
-    private mapService: MapService,
-    private smartApartmentDataService: SmartApartmentDataService
-  ) {}
+  @ViewChild('map') private mapContainer!: ElementRef<HTMLElement>;
+  constructor(private store: Store) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.store.dispatch(appLoaded());
+    console.log('countrySuggestions', this.countrySuggestions$);
+    console.log('store', this.store);
+  }
 
   ngAfterViewInit() {
     const initialState = { lng: 139.753, lat: 35.6844, zoom: 14 };
@@ -82,103 +77,139 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       'top-right'
     );
 
-    //adding a new marker to the map
-    var marker = new Marker({ color: '#FF0000', draggable: true })
-      .setLngLat([initialState.lng, initialState.lat])
-      .addTo(this.map);
-    this.markers.push(marker);
-    this.addMarkerOnClickActions(marker);
+    // //adding a new marker to the map
+    // var marker = new Marker({ color: '#FF0000', draggable: true })
+    //   .setLngLat([initialState.lng, initialState.lat])
+    //   .addTo(this.map);
 
-    //adding a new marker to the map on double click
-    this.map.on('dblclick', (e) => {
-      this.map.flyTo({
-        center: e.lngLat,
-        duration: 2000,
-        zoom: 15,
-      });
-      var marker = new Marker({ color: '#FF0000', draggable: true })
-        .setLngLat(e.lngLat)
-        .addTo(this.map);
+    // this.addMarkerOnClickActions(marker);
 
-      if (this.markerTitle) {
-        marker.setPopup(new Popup().setHTML(`<h1>${this.markerTitle}</h1>`));
-      }
+    // this.store.dispatch(addMarkerInitiated({ marker: marker }));
+    // // this.markers.push(marker);
 
-      this.addMarkerOnClickActions(marker);
+    // //adding a new marker to the map on double click
+    // this.map.on('dblclick', (e) => {
+    //   this.map.flyTo({
+    //     center: e.lngLat,
+    //     duration: 2000,
+    //     zoom: 15,
+    //   });
+    //   var marker = new Marker({ color: '#FF0000', draggable: true })
+    //     .setLngLat(e.lngLat)
+    //     .addTo(this.map);
 
-      marker.getElement().addEventListener('oncontextmenu', (e) => {
-        marker.remove();
-      });
+    //   if (this.markerTitle) {
+    //     marker.setPopup(new Popup().setHTML(`<h1>${this.markerTitle}</h1>`));
+    //   }
 
-      this.markers.push(marker);
-    });
+    //   this.addMarkerOnClickActions(marker);
 
-    //adding users location
-    this.geoLocate = new GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true,
-      },
-      trackUserLocation: true,
-    });
-    // Add the control to the map.
-    this.map.addControl(this.geoLocate);
+    //   marker.getElement().addEventListener('oncontextmenu', (e) => {
+    //     marker.remove();
+    //   });
+
+    //   this.store.dispatch(addMarkerInitiated({ marker: marker }));
+    //   // this.markers.push(marker);
+    // });
+
+    // //adding users location
+    // this.geoLocate = new GeolocateControl({
+    //   positionOptions: {
+    //     enableHighAccuracy: true,
+    //   },
+    //   trackUserLocation: true,
+    // });
+    // // Add the control to the map.
+    // this.map.addControl(this.geoLocate);
   }
 
   onLoadAllPinsClick() {
     console.log('onLoadAllPinsClick');
     this.pinsLoading = true;
-    this.smartApartmentDataService.GetAllPins().subscribe((resp) => {
-      if (!resp || !resp.records) {
-        return;
-      }
-      var pinnedMarkers = [];
 
-      for (const item of resp.records) {
-        this.Pins.push({
-          Name: item.name,
-          Photo: item.photo,
-          GeoCode: {
-            Lng: item.geocode.Longitude,
-            Lat: item.geocode.Latitude,
-          },
+    this.store.dispatch(loadAllPinsOnLoadAllPinsButtonClicked());
+    this.Pins$.subscribe((pins) => {
+      var pinnedMarkers: Marker[] = [];
+
+      if (pins && pins.length > 0) {
+        pins.forEach((pin) => {
+          var marker = new Marker({ color: '#FF0000' })
+            .setLngLat([pin.GeoCode.Lng, pin.GeoCode.Lng])
+            .addTo(this.map);
+          this.addMarkerOnClickActions(marker);
+          this.store.dispatch(addMarkerInitiated({ marker: marker }));
+          pinnedMarkers.push(marker);
         });
-
-        var marker = new Marker({ color: '#FF0000' })
-          .setLngLat([item.geocode.Longitude, item.geocode.Latitude])
-          .addTo(this.map);
-        this.markers.push(marker);
-        this.addMarkerOnClickActions(marker);
-        pinnedMarkers.push(marker);
       }
-      this.Pins$ = of(this.Pins);
       this.pinsLoading = false;
-      //zoom out to see all pins
-      var bounds = new LngLatBounds();
-      pinnedMarkers.forEach(function (feature) {
-        bounds.extend(feature.getLngLat());
-      });
-
-      this.map.fitBounds(bounds, { maxZoom: 11 });
+      console.log('pinnedMarkers', pinnedMarkers);
+      if (pinnedMarkers.length > 0) {
+        var bounds = new LngLatBounds();
+        pinnedMarkers.forEach(function (marker) {
+          bounds.extend(marker.getLngLat());
+        });
+        this.map.fitBounds(bounds, { maxZoom: 11 });
+      }
     });
+
+    // this.smartApartmentDataService.GetAllPins().subscribe((resp) => {
+    //   if (!resp || !resp.records) {
+    //     return;
+    //   }
+    //   var pinnedMarkers = [];
+
+    //   for (const item of resp.records) {
+    //     this.Pins.push({
+    //       Name: item.name,
+    //       Photo: item.photo,
+    //       GeoCode: {
+    //         Lng: item.geocode.Longitude,
+    //         Lat: item.geocode.Latitude,
+    //       },
+    //     });
+
+    //     var marker = new Marker({ color: '#FF0000' })
+    //       .setLngLat([item.geocode.Longitude, item.geocode.Latitude])
+    //       .addTo(this.map);
+    //     this.store.dispatch(addMarkerInitiated({ marker: marker }));
+    //     //   this.markers.push(marker);
+    //     this.addMarkerOnClickActions(marker);
+    //     pinnedMarkers.push(marker);
+    //   }
+    //   this.Pins$ = of(this.Pins);
+    //   this.pinsLoading = false;
+    //   //zoom out to see all pins
+    //   var bounds = new LngLatBounds();
+    //   pinnedMarkers.forEach(function (feature) {
+    //     bounds.extend(feature.getLngLat());
+    //   });
+
+    //   this.map.fitBounds(bounds, { maxZoom: 11 });
+    // });
   }
   onRemovedAllPinsClick() {
     console.log('onRemovedAllPinsClick');
+
+    this.store.dispatch(removeAllMarkerInitiated());
     //removing all the marker
-    this.markers.forEach((marker) => marker.remove());
-    this.Pins$ = of([]);
+    // this.markers.forEach((marker) => marker.remove());
+    // this.Pins$ = of([]);
   }
   onAutoZoomToCenterAllPinsClick() {
     console.log('onAutoZoomToCenterAllPinsClick');
-    if (this.markers.length > 1) {
-      var bounds = new LngLatBounds();
-      this.markers.forEach(function (feature) {
-        bounds.extend(feature.getLngLat());
-      });
 
-      this.map.fitBounds(bounds, { maxZoom: 11 });
-    } else {
-      alert('Please add at least 2 markers');
-    }
+    this.markers.subscribe((markers) => {
+      if (markers.length > 1) {
+        var bounds = new LngLatBounds();
+        markers.forEach(function (marker) {
+          bounds.extend(marker.getLngLat());
+        });
+
+        this.map.fitBounds(bounds, { maxZoom: 11 });
+      } else {
+        alert('Please add at least 2 markers');
+      }
+    });
   }
   onMoveToYourLocationClick() {
     console.log('onMoveToYourLocationClick');
@@ -187,30 +218,38 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       this.geoLocate.trigger();
     }
   }
-  onSearchCountryInput(con: string | any) {
+  onSearchCountryInput(con: String | any) {
     if (!con) {
-      this.countryLoading = false;
-      this.countrySuggestions = [];
-      this.countrySuggestions$ = of(this.countrySuggestions);
+      this.store.dispatch(removeAllCountriesOnNewCountryInput());
+
+      // this.countryLoading = false;
+      // this.countrySuggestions = [];
+      // this.countrySuggestions$ = of(this.countrySuggestions);
       return;
     }
     this.countryLoading = true;
-    this.countrySuggestions = [];
-    this.mapService
-      .SearchCountryByName(typeof con === 'string' ? con : con.Name)
-      .subscribe((resp) => {
-        for (const place of resp.features) {
-          this.countrySuggestions.push({
-            Name: place.place_name,
-            GeoCode: {
-              Lng: place.center[0],
-              Lat: place.center[1],
-            },
-          });
-        }
-        this.countrySuggestions$ = of(this.countrySuggestions);
-        this.countryLoading = false;
-      });
+
+    this.store.dispatch(fetchCountriesInitiate(con));
+
+    this.countryLoading = false;
+
+    // this.countryLoading = true;
+    // this.countrySuggestions = [];
+    // this.mapService
+    //   .SearchCountryByName(typeof con === 'string' ? con : con.Name)
+    //   .subscribe((resp) => {
+    //     for (const place of resp.features) {
+    //       this.countrySuggestions.push({
+    //         Name: place.place_name,
+    //         GeoCode: {
+    //           Lng: place.center[0],
+    //           Lat: place.center[1],
+    //         },
+    //       });
+    //     }
+    //     this.countrySuggestions$ = of(this.countrySuggestions);
+    //     this.countryLoading = false;
+    //   });
   }
   onSelectedCountry(con: any) {
     this.countryInput = con.Name;
@@ -219,12 +258,14 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       duration: 2000,
       zoom: 10,
     });
+
     var marker = new Marker({ color: '#FF0000' })
       .setLngLat({ lng: con.GeoCode.Lng, lat: con.GeoCode.Lat })
       .addTo(this.map);
     this.addMarkerOnClickActions(marker);
 
-    this.markers.push(marker);
+    this.store.dispatch(addMarkerInitiated({ marker: marker }));
+    // this.markers.push(marker);
   }
   addMarkerOnClickActions(marker: Marker) {
     if (!marker) {

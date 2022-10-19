@@ -33,7 +33,7 @@
                     <mat-spinner diameter="50"></mat-spinner>
                 </mat-option>
                 <ng-container *ngIf="!appMap.countryLoading">
-                    <mat-option *ngFor="let option of appMap.countrySuggestions$ | async" [value]="option"
+                    <mat-option *ngFor="let option of (appMap.countrySuggestions$ | async)" [value]="option"
                         (click)="appMap.onSelectedCountry(option)">
                         {{option.Name}}
                     </mat-option>
@@ -50,11 +50,11 @@
             </mat-card>
         </ng-container>
         <ng-container *ngIf="!appMap.pinsLoading">
-            <mat-card *ngFor="let item of appMap.Pins$ | async" (click)="appMap.onSelectedApartmentItem(item)"
+            <mat-card *ngFor="let item of appMap.pins$ | async" (click)="appMap.onSelectedApartmentItem(item)"
                 style="cursor: pointer; margin: 10px;">
                 <mat-card-title-group>
                     <mat-card-title>{{item.Name}}</mat-card-title>
-                    <img mat-card-sm-image src="{{item.Photo}}">
+                    <img mat-card-sm-image src="{{item.PhotoUrl}}">
                 </mat-card-title-group>
             </mat-card>
         </ng-container>
