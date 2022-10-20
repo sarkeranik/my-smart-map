@@ -32,7 +32,6 @@ export class MapsEffects {
       // you can pass in multiple actions here that will trigger the same effect
       ofType(MapActions.loadAllPinsInitiate),
       switchMap(() => {
-        console.log('effect called');
         var res = this.smartApartmentDataService.GetAllPins().pipe(
           map((resp) => {
             var pins: Pin[] = [];
@@ -76,7 +75,6 @@ export class MapsEffects {
       switchMap((args) =>
         this.mapService.SearchCountryByName(args.loc).pipe(
           map((resp) => {
-            console.log('this.mapService.SearchCountryByName', resp);
             var countries: Country[] = [];
 
             for (const place of resp.features) {
@@ -98,8 +96,8 @@ export class MapsEffects {
     )
   );
   //for debugging the ngrx states
-  init$ = createEffect(
-    () => this.actions$.pipe(tap((action) => console.log(action))),
-    { dispatch: false }
-  );
+  // init$ = createEffect(
+  //   () => this.actions$.pipe(tap((action) => console.log(action))),
+  //   { dispatch: false }
+  // );
 }

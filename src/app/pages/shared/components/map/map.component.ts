@@ -134,8 +134,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onLoadAllPinsClick() {
-    console.log('onLoadAllPinsClick');
-
     this.store.dispatch(loadAllPinsInitiate());
     this.pins$.subscribe((pins) => {
       var pinnedMarkers: Marker[] = [];
@@ -163,16 +161,12 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
   onRemoveAllMarkersClick() {
-    console.log('onRemoveAllMarkersClick');
-
     //removing all the marker
     this.markers.forEach((marker) => marker.remove());
     this.markers = [];
     this.store.dispatch(removeAllPinsInitiate());
   }
   onAutoZoomToCenterAllMarkersClick() {
-    console.log('onAutoZoomToCenterAllMarkersClick');
-
     if (this.markers.length > 1) {
       var bounds = new LngLatBounds();
       this.markers.forEach(function (marker) {
@@ -185,7 +179,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
   onMoveToYourLocationClick() {
-    console.log('onMoveToYourLocationClick');
     //move to your location
     if (this.geoLocate) {
       this.geoLocate.trigger();
@@ -202,8 +195,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   onSelectedCountry($eventArgs: any) {
     var con: Country = $eventArgs;
-    console.log('onSelectedCountry');
-
     this.countryInput = con.Name;
     this.map.flyTo({
       center: { lng: con.GeoCode.Lng, lat: con.GeoCode.Lat },
@@ -238,8 +229,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   onSelectedApartmentItem($eventArgs: any) {
     let item: Pin = $eventArgs;
 
-    console.log('onSelectedApartmentItem');
-
     this.map.flyTo({
       center: { lng: item.GeoCode.Lng, lat: item.GeoCode.Lat },
       duration: 2000,
@@ -251,7 +240,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     let markerTitle: String = $eventArgs;
 
     this.markerTitle = markerTitle;
-    console.log('onMarkerTitleChange markerTitle', markerTitle);
   }
 
   ngOnDestroy() {

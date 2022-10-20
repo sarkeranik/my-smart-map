@@ -6,7 +6,6 @@ import * as _ from 'lodash';
 export const reducer = createReducer(
   initialState,
   on(MapActions.loadAllPinsInitiate, (state, {}) => {
-    console.log('reducer called');
     return { ...state, pinLoading: true };
   }),
   on(MapActions.loadAllPinsSuccess, (state, { pins }) => {
@@ -14,6 +13,9 @@ export const reducer = createReducer(
     return { ...state, pins: listClone, pinLoading: false };
   }),
   on(MapActions.loadAllPinsFailed, (state, {}) => {
+    alert(
+      'Could not able to connect to My Apartment API. Please Check your network and try again.'
+    );
     return { ...state, pinLoading: false };
   }),
 

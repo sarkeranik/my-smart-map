@@ -12,7 +12,6 @@ export class MapService {
   constructor(private http: HttpClient) {}
 
   SearchCountryByName(name: string | any): Observable<any> {
-    console.log('SearchCountryByName', name);
     var response = this.http.get<any>(
       `${MAPTILER_API_DOMAIN}/geocoding/${
         typeof name === 'string' ? name : name.Name
