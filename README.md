@@ -14,7 +14,7 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 <img width="958" alt="Smart Aparment Data Project Demonstration" src="https://user-images.githubusercontent.com/65606710/197065141-affe9cf2-970b-4a6e-972e-9075cff1681f.png">
 
-(https://vimeo.com/762442990 "Projects Video Demonstration")
+You will find this projects video demonstration from here. (https://vimeo.com/762442990)
 
 ## Running the project
 
