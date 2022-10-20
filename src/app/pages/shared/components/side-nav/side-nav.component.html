@@ -1,0 +1,51 @@
+<button mat-button class="menu-button" (click)="onRemoveAllMarkersClicked()">
+    <span>Remove all Markers</span>
+</button>
+<button mat-button class="menu-button" (click)="onAutoZoomToCenterAllMarkersClicked()">
+    <span>Auto Zoom to center map on a group of markers</span>
+</button>
+<button mat-button class="menu-button" (click)="onMoveToYourLocationClicked()">
+    <span>Move to You Location</span>
+</button>
+
+<mat-form-field class="form-fields" appearance="fill">
+    <mat-label class="form-fields-label">Add a Marker with custom Title
+    </mat-label>
+    <input matInput placeholder=" Type you title and double click on map to add to your marker" value=""
+        [(ngModel)]="markerTitle" (blur)="onMarkerTitleChange()">
+</mat-form-field>
+
+<mat-form-field class="example-full-width" appearance="fill" style="width: 100%;">
+    <mat-label>Zoom To</mat-label>
+    <input type="text" placeholder="Location Name" aria-label="Zoom To" matInput [(ngModel)]="countryInput"
+        [matAutocomplete]="auto" (ngModelChange)="onSearchCountryInputed(countryInput)">
+    <mat-autocomplete #auto="matAutocomplete">
+        <mat-option *ngIf="countryLoading$ | async" class="is-loading">
+            <mat-spinner diameter="50"></mat-spinner>
+        </mat-option>
+        <ng-container *ngIf="!(countryLoading$ | async)">
+            <mat-option *ngFor="let option of (countrySuggestions$ | async)" [value]="option"
+                (click)="onSelectCountry(option)">
+                {{option.Name}}
+            </mat-option>
+        </ng-container>
+    </mat-autocomplete>
+</mat-form-field>
+
+<button mat-button class="menu-button" (click)="onLoadAllPinsClicked()">
+    <span>Load All Pins</span>
+</button>
+<ng-container *ngIf="pinsLoading$ | async">
+    <mat-card style="cursor: pointer; margin: 10px;">
+        <mat-spinner diameter="50"></mat-spinner>
+    </mat-card>
+</ng-container>
+<ng-container *ngIf="!(pinsLoading$ | async)">
+    <mat-card *ngFor="let item of pins$ | async" (click)="onSelectApartmentItem(item)"
+        style="cursor: pointer; margin: 10px;">
+        <mat-card-title-group>
+            <mat-card-title>{{item.Name}}</mat-card-title>
+            <img mat-card-sm-image src="{{item.PhotoUrl}}">
+        </mat-card-title-group>
+    </mat-card>
+</ng-container>

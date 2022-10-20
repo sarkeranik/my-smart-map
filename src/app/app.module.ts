@@ -26,6 +26,7 @@ import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { MapsEffects } from './core/state/map';
 import { reducer } from './core/state/map';
+import { SideNavComponent } from './pages/shared/components/side-nav/side-nav.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import { reducer } from './core/state/map';
     MapComponent,
     NotFoundPageComponent,
     HomePageComponent,
+    SideNavComponent,
   ],
   imports: [
     BrowserModule,

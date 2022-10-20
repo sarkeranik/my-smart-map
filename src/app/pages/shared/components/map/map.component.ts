@@ -46,7 +46,7 @@ import {
 export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   map!: Map;
   markers: Marker[] = [];
-  markerTitle: string = '';
+  markerTitle: String = '';
   geoLocate!: GeolocateControl;
 
   countryInput: String = '';
@@ -191,14 +191,17 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       this.geoLocate.trigger();
     }
   }
-  onSearchCountryInput(name: String | object) {
+  onSearchCountryInput($eventArgs: any) {
+    let name: String | object = $eventArgs;
+
     if (!name) {
       this.store.dispatch(removeAllCountriesInitiate());
       return;
     }
     this.store.dispatch(fetchCountriesInitiate({ loc: name }));
   }
-  onSelectedCountry(con: Country) {
+  onSelectedCountry($eventArgs: any) {
+    var con: Country = $eventArgs;
     console.log('onSelectedCountry');
 
     this.countryInput = con.Name;
@@ -226,11 +229,15 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
         zoom: 15,
       });
       var popup = marker.getPopup();
-      popup.fire(e);
+      if (popup) {
+        popup.fire(e);
+      }
     });
   }
 
-  onSelectedApartmentItem(item: Pin) {
+  onSelectedApartmentItem($eventArgs: any) {
+    let item: Pin = $eventArgs;
+
     console.log('onSelectedApartmentItem');
 
     this.map.flyTo({
@@ -238,6 +245,13 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       duration: 2000,
       zoom: 15,
     });
+  }
+
+  onMarkerTitleChange($eventArgs: any) {
+    let markerTitle: String = $eventArgs;
+
+    this.markerTitle = markerTitle;
+    console.log('onMarkerTitleChange markerTitle', markerTitle);
   }
 
   ngOnDestroy() {

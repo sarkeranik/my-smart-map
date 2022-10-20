@@ -8,63 +8,17 @@
 
 <mat-sidenav-container>
     <mat-sidenav #sidenav="matSidenav" class="mat-elevation-z8">
-        <button mat-button class="menu-button" (click)="appMap.onRemoveAllMarkersClick()">
-            <span>Remove all Markers</span>
-        </button>
-        <button mat-button class="menu-button" (click)="appMap.onAutoZoomToCenterAllMarkersClick()">
-            <span>Auto Zoom to center map on a group of markers</span>
-        </button>
-        <button mat-button class="menu-button" (click)="appMap.onMoveToYourLocationClick()">
-            <span>Move to You Location</span>
-        </button>
-
-        <mat-form-field class="form-fields" appearance="fill">
-            <mat-label class="form-fields-label">Add a Marker with custom Title
-            </mat-label>
-            <input matInput placeholder=" Type you title and double click on map to add to your marker" value=""
-                [(ngModel)]="appMap.markerTitle">
-        </mat-form-field>
-
-        <mat-form-field class="example-full-width" appearance="fill" style="width: 100%;">
-            <mat-label>Zoom To</mat-label>
-            <input type="text" placeholder="Location Name" aria-label="Zoom To" matInput
-                [(ngModel)]="appMap.countryInput" [matAutocomplete]="auto"
-                (ngModelChange)="appMap.onSearchCountryInput(appMap.countryInput)">
-            <mat-autocomplete #auto="matAutocomplete">
-                <mat-option *ngIf="appMap.countryLoading$ | async" class="is-loading">
-                    <mat-spinner diameter="50"></mat-spinner>
-                </mat-option>
-                <ng-container *ngIf="!(appMap.countryLoading$ | async)">
-                    <mat-option *ngFor="let option of (appMap.countrySuggestions$ | async)" [value]="option"
-                        (click)="appMap.onSelectedCountry(option)">
-                        {{option.Name}}
-                    </mat-option>
-                </ng-container>
-            </mat-autocomplete>
-        </mat-form-field>
-
-        <button mat-button class="menu-button" (click)="appMap.onLoadAllPinsClick()">
-            <span>Load All Pins</span>
-        </button>
-        <ng-container *ngIf="appMap.pinsLoading$ | async">
-            <mat-card style="cursor: pointer; margin: 10px;">
-                <mat-spinner diameter="50"></mat-spinner>
-            </mat-card>
-        </ng-container>
-        <ng-container *ngIf="!(appMap.pinsLoading$ | async)">
-            <mat-card *ngFor="let item of appMap.pins$ | async" (click)="appMap.onSelectedApartmentItem(item)"
-                style="cursor: pointer; margin: 10px;">
-                <mat-card-title-group>
-                    <mat-card-title>{{item.Name}}</mat-card-title>
-                    <img mat-card-sm-image src="{{item.PhotoUrl}}">
-                </mat-card-title-group>
-            </mat-card>
-        </ng-container>
-
+        <app-side-nav [countryInput]="appMap.countryInput" (onRemoveAllMarkersClick)="appMap.onRemoveAllMarkersClick()"
+            (onAutoZoomToCenterAllMarkersClick)="appMap.onAutoZoomToCenterAllMarkersClick()"
+            (onMoveToYourLocationClick)="appMap.onMoveToYourLocationClick()"
+            (onMarkerTitleChanged)="appMap.onMarkerTitleChange($event)"
+            (onSearchCountryInput)="appMap.onSearchCountryInput($event)"
+            (onSelectedCountry)="appMap.onSelectedCountry($event)" (onLoadAllPinsClick)="appMap.onLoadAllPinsClick()"
+            (onSelectedApartmentItem)="appMap.onSelectedApartmentItem($event)"></app-side-nav>
     </mat-sidenav>
 
     <mat-sidenav-content>
-        <div class="content mat-elevation-z8">
+        <div class=" content mat-elevation-z8">
             <app-map #appMap></app-map>
         </div>
     </mat-sidenav-content>
