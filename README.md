@@ -10,9 +10,15 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The appli
 
 Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
+## Project Demonstration
+
+<img width="958" alt="Smart Aparment Data Project Demonstration" src="https://user-images.githubusercontent.com/65606710/197065141-affe9cf2-970b-4a6e-972e-9075cff1681f.png">
+
+(https://vimeo.com/762442990 "Projects Video Demonstration")
+
 ## Running the project
 
-Go to the root directory of this project, Run `npm install` to install node packages neccessary for the project.After that Run `npm start` to start the project.
+Go to the root directory of this project, Run `npm install` to install node packages neccessary for the project. After that Run `npm start` to start the project.
 
 ## Build
 
