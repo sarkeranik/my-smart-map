@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
+import {
+  MAPTILER_API_DOMAIN,
+  MAPTILER_API_KEY,
+} from '../../_infrastructure/appSettings';
 @Injectable({
   providedIn: 'root',
 })
@@ -11,9 +14,9 @@ export class MapService {
   SearchCountryByName(name: string | any): Observable<any> {
     console.log('SearchCountryByName', name);
     var response = this.http.get<any>(
-      `https://api.maptiler.com/geocoding/${
+      `${MAPTILER_API_DOMAIN}/geocoding/${
         typeof name === 'string' ? name : name.Name
-      }.json?key=CH1cYDfxBV9ZBu1lHGqh`
+      }.json?key=${MAPTILER_API_KEY}`
     );
     return response;
   }

@@ -32,6 +32,12 @@ import {
 } from '../../../../core/state/map';
 import { Pin } from 'src/app/core/models/pin.model';
 import { Country } from 'src/app/core/models/country.model';
+import {
+  MAPTILER_API_KEY,
+  MAPTILER_STYLE_API,
+  MAPTILER_API_DOMAIN,
+} from '../../../../_infrastructure/appSettings';
+
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -45,18 +51,12 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   countryInput: String = '';
 
-  destroy$: Subject<boolean> = new Subject<boolean>();
-
   public countrySuggestions$: Observable<Country[]> = new Observable<
     Country[]
   >();
-
-  // countrySuggestions$ = this.store.select(selectCountries);
   countryLoading$: Observable<boolean> = new Observable<boolean>();
 
   public pins$: Observable<Pin[]> = new Observable<Pin[]>();
-
-  // pins$ = this.store.select(selectPins);
   pinsLoading$: Observable<boolean> = new Observable<boolean>();
 
   @ViewChild('map') private mapContainer!: ElementRef<HTMLElement>;
@@ -73,10 +73,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     const initialState = { lng: 139.753, lat: 35.6844, zoom: 14 };
-    const key = 'SoL71Zyf7SmLrVYWC7fQ';
     this.map = new Map({
       container: this.mapContainer.nativeElement,
-      style: `https://api.maptiler.com/maps/eef16200-c4cc-4285-9370-c71ca24bb42d/style.json?key=CH1cYDfxBV9ZBu1lHGqh`,
+      style: `${MAPTILER_API_DOMAIN}${MAPTILER_STYLE_API}?key=${MAPTILER_API_KEY}`,
       center: [initialState.lng, initialState.lat],
       zoom: initialState.zoom,
       doubleClickZoom: false,
@@ -89,7 +88,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       }),
       'top-right'
     );
-
     //adding a new marker to the map
     var marker = new Marker({ color: '#FF0000', draggable: true })
       .setLngLat([initialState.lng, initialState.lat])
@@ -132,6 +130,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     });
     // Add the control to the map.
     this.map.addControl(this.geoLocate);
+    this.map.resize();
   }
 
   onLoadAllPinsClick() {
@@ -242,7 +241,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.destroy$.next(true);
     this.map?.remove();
   }
 }
